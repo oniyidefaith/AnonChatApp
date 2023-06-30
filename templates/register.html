@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'auths/register.css' %}">
+    <title>GhostTalk</title>
+
+</head>
+<body>
+
+<div class="flex">
+    <h2><img src="{% static 'svg/logo.svg' %}"></h2>
+<div class="register_container">
+
+
+<form action="/register" method="POST">{% csrf_token %}
+    <h1>Register</h1><br>
+    <p> Please Enter your details here</p><br>
+    <input type="text" class="field" placeholder="Username/Nickname" name="username" required><br/>
+    <input type="email" class="field" placeholder="example@gmail.com" name="email" required><br/>
+    <input type="password" class="field" placeholder="******" name="p1" required><br/>
+    <input type="password" class="field" placeholder="******" name="p2" required><br/>
+    <div class="niche">
+        Already have an account? <i><a href="/" >login</a></i>
+    </div><br>
+    <input type="submit" class="btn" value="Register">
+    {% for m in messages %}
+    <center><font color="red"><h2>{{m}}</h2></font></center>
+    {% endfor %}
+</form>
+
+</div>
+<div class="right">
+    <div class="content">
+    <img class="img" src="{% static 'svg/incognito2.svg' %}"><br>
+    <p class="p">Welcome to our anonymous chat application, where you can freely connect with others without revealing your identity. Engage in open conversations, share ideas, and explore diverse perspectives while maintaining complete anonymity.</p>
+    </div>
+</div>
+</div>
+</body>
+</html>

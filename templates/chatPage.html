@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <title>GhostTalk</title>
+     <meta name="viewport">
+    <link rel="stylesheet" type="text/css" href="{% static 'auths/chat.css' %}">
+</head>
+<body>
+<div class="left_menu">
+    <div class="left_content">
+        {% if request.user.is_authenticated %}
+ <a href = "{% url 'login' %}"><img title="Logout " src="{% static 'svg/incognito2.svg' %}" class="hero_logo"></a>
+{% endif %}
+
+        <a href="http://localhost:8000/room/{{ request.user }}/"> <img title="Chat" src="{% static 'svg/chat.svg' %}" class="hero_logo"></a>
+        <img title="GhostTalk Question" src="{% static 'svg/question.svg' %}" class="hero_logo">
+        <img title="Video Call" src="{% static 'svg/video.svg' %}" class="hero_logo">
+    </div>
+</div>
+<div class="chat_div">
+    <h3>Hello, Say something about {{request.user}} you're Anonymous</h3>
+    <br>
+
+    <div class="chat_container"></div>
+    <div class="chat__item__container" id="id_chat_item_container" style="font-size: 20px">
+        <br />
+        <textarea autofocus type="text" class="text_area" rows="10" onkeyup="if (this.scrollHeight > this.clientHeight) this.style.height = this.scrollHeight + 'px';" id="id_message_send_input"></textarea><br>
+        <div class="flex_button">
+            <img src="{% static 'svg/camera.svg' %}" class="camera" onclick="document.getElementById('id_file_input').click()" alt="insert image">
+            <input class="hero_logo invisible" type="file" id="id_file_input">
+            <button type="submit" class="send_button" id="id_message_send_button">Send</button>
+        </div>
+
+        <br />
+        <br />
+    </div>
+</div>
+</div>
+<div class="right_div">
+<div class="slideshow-container">
+
+<div class="mySlides fade">
+  <div class="numbertext">1 / 2</div>
+    <br/>
+  <img src="{% static 'svg/logo_two.svg' %}" style="width:100%"><br>
+  <div class="text">Welcome To Ghost Talk</div>
+</div>
+
+<div class="mySlides fade">
+  <div class="numbertext">2 / 2</div><br/><br>
+  <img src="https://img.freepik.com/premium-photo/portrait-young-business-man-work-video-call-while-staying-home_58466-15489.jpg?w=740" style="width:100%">
+    <br><br>
+  <div class="text">Talk with Stranger coming soon</div>
+</div>
+<br>
+<div style="text-align:center">
+  <span class="dot"></span>
+  <span class="dot"></span>
+
+</div>
+</div>
+<br>
+</div>
+<script>
+var roomName = "{{ room_name }}"; // Room name obtained from the server
+
+var chatSocket = new WebSocket(
+    'ws://' + window.location.host +
+    '/ws/chat/' + roomName + '/');
+
+chatSocket.onmessage = function (e) {
+    var data = JSON.parse(e.data);
+    var message = data.message;
+    var isFile = data.is_file;
+    var chatContainer = document.querySelector('.chat_container');
+    var messageElement = document.createElement('div');
+    messageElement.classList.add('chats');
+
+    if (isFile) {
+        var fileElement = document.createElement('img');
+        fileElement.classList.add('input_img');
+        fileElement.src = message;
+        messageElement.appendChild(fileElement);
+    } else {
+        messageElement.textContent = message;
+    }
+
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+};
+
+document.querySelector("#id_message_send_input").focus();
+document.querySelector("#id_message_send_input").onkeyup = function (e) {
+    if (e.keyCode == 13) {
+        document.querySelector("#id_message_send_button").click();
+    }
+};
+
+document.querySelector("#id_file_input").onchange = function (e) {
+    var fileInput = document.querySelector("#id_file_input").files[0];
+    var reader = new FileReader();
+    reader.onload = function (event) {
+        var fileData = event.target.result;
+        var messageElement = document.createElement('div');
+        var fileElement = document.createElement('img');
+        fileElement.classList.add('input_img');
+        fileElement.src = fileData;
+        messageElement.appendChild(fileElement);
+        messageElement.classList.add('chats');
+        document.querySelector('.chat_container').appendChild(messageElement);
+        document.querySelector('.chat_container').scrollTop = document.querySelector('.chat_container').scrollHeight;
+        chatSocket.send(JSON.stringify({ file_data: fileData }));
+    };
+    reader.readAsDataURL(fileInput);
+};
+
+document.querySelector("#id_message_send_button").onclick = function (e) {
+    var messageInput = document.querySelector("#id_message_send_input").value;
+
+    if (messageInput) {
+        var messageElement = document.createElement('div');
+        messageElement.textContent = messageInput;
+        messageElement.classList.add('chats');
+        document.querySelector('.chat_container').appendChild(messageElement);
+        document.querySelector('.chat_container').scrollTop = document.querySelector('.chat_container').scrollHeight;
+        chatSocket.send(JSON.stringify({ message: messageInput }));
+    }
+
+    document.querySelector("#id_message_send_input").value = "";
+    document.querySelector("#id_file_input").value = "";
+};
+
+const textarea = document.querySelector('textarea');
+
+textarea.addEventListener('input', function () {
+    while (textarea.clientHeight < textarea.scrollHeight) {
+        textarea.value = textarea.value.substr(0, textarea.value.length - 1);
+    }
+});
+
+
+let slideIndex = 0;
+showSlides();
+
+function showSlides() {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  slideIndex++;
+  if (slideIndex > slides.length) {slideIndex = 1}
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+  setTimeout(showSlides, 2000); // Change image every 2 seconds
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>

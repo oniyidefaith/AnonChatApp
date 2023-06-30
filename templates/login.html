@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'auths/login.css' %}">
+    <title>GhostTalk</title>
+
+</head>
+<body>
+
+<div class="flex">
+    <h2><img src="{% static 'svg/logo.svg' %}"></h2>
+<div class="register_container">
+
+
+<form action="" method="POST">
+     {% csrf_token %}
+     {{form.as_p}}
+    <h1>Login</h1><br>
+    <p> Please Enter your details here</p><br>
+    <input type="text" class="field" placeholder="Username/Nick Name" name="un" required><br>
+    <input type="password" class="field" placeholder="Your Password" name="pa" required><br>
+    <div class="niche">
+        New User? <i><a href="register" >Register</a></i>
+    </div><br>
+<!--    <a href="password-reset">Forgot Password?</a><br>-->
+    <input type="submit" class="btn" value="Login" name="login">
+
+    {% for m in messages %}
+    <center><font color="red"><h2>{{m}}</h2></font></center>
+    {% endfor %}
+</form>
+
+</div>
+<div class="right">
+    <div class="content">
+    <img class="img" src="{% static 'svg/incognito2.svg' %}"><br>
+    <p class="p">Welcome to our anonymous chat application, where you can freely connect with others without revealing your identity. Engage in open conversations, share ideas, and explore diverse perspectives while maintaining complete anonymity.</p>
+    </div>
+</div>
+</div>
+</body>
+</html>
