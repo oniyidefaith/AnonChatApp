@@ -31,10 +31,11 @@
             <input class="hero_logo invisible" type="file" id="id_file_input">
             <button type="submit" class="send_button" id="id_message_send_button">Send</button>
         </div>
-
         <br />
         <br />
     </div>
+</div>
+
 </div>
 </div>
 <div class="right_div">
@@ -82,10 +83,13 @@ chatSocket.onmessage = function (e) {
         fileElement.classList.add('input_img');
         fileElement.src = message;
         messageElement.appendChild(fileElement);
+
+        var textCaption = document.createElement('div');
+        textCaption.textContent = data.caption;
+        messageElement.appendChild(textCaption);
     } else {
         messageElement.textContent = message;
     }
-
 
     chatContainer.scrollTop = chatContainer.scrollHeight;
 };
@@ -102,15 +106,27 @@ document.querySelector("#id_file_input").onchange = function (e) {
     var reader = new FileReader();
     reader.onload = function (event) {
         var fileData = event.target.result;
+        var messageInput = document.querySelector("#id_message_send_input").value;
+
         var messageElement = document.createElement('div');
         var fileElement = document.createElement('img');
         fileElement.classList.add('input_img');
         fileElement.src = fileData;
         messageElement.appendChild(fileElement);
+
+        if (messageInput) {
+            var textCaption = document.createElement('div');
+            textCaption.textContent = messageInput;
+            messageElement.appendChild(textCaption);
+        }
+
         messageElement.classList.add('chats');
         document.querySelector('.chat_container').appendChild(messageElement);
         document.querySelector('.chat_container').scrollTop = document.querySelector('.chat_container').scrollHeight;
-        chatSocket.send(JSON.stringify({ file_data: fileData }));
+        chatSocket.send(JSON.stringify({
+            file_data: fileData,
+            caption: messageInput
+        }));
     };
     reader.readAsDataURL(fileInput);
 };
@@ -139,26 +155,28 @@ textarea.addEventListener('input', function () {
     }
 });
 
-
 let slideIndex = 0;
 showSlides();
 
 function showSlides() {
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  let dots = document.getElementsByClassName("dot");
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-  }
-  slideIndex++;
-  if (slideIndex > slides.length) {slideIndex = 1}
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
-  setTimeout(showSlides, 2000); // Change image every 2 seconds
+    let i;
+    let slides = document.getElementsByClassName("mySlides");
+    let dots = document.getElementsByClassName("dot");
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    slideIndex++;
+    if (slideIndex > slides.length) {
+        slideIndex = 1;
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+    }
+    slides[slideIndex - 1].style.display = "block";
+    dots[slideIndex - 1].className += " active";
+    setTimeout(showSlides, 2000); // Change image every 2 seconds
 }
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
