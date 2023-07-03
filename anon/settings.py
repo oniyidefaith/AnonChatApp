@@ -102,6 +102,8 @@ CACHES = {
     },
 }
 
+CACHE_TTL = 60 * 5
+
 
 LOGIN_REDIRECT_URL = "chat"
 LOGOUT_REDIRECT_URL = "login"
