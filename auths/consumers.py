@@ -1,5 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.core.cache import cache
+from django_redis import get_redis_connection
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -7,6 +9,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.roomGroupName = f"group_chat_{self.user.id}"
         self.roomName = self.scope['url_route']['kwargs']['room_name']
         self.roomGroup = f"group_chat_{self.roomName}"
+        self.redis = get_redis_connection()
 
         await self.channel_layer.group_add(
             self.roomGroupName,
@@ -41,6 +44,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message": message,
                 }
             )
+            # Save the message in Redis with an expiration time of 10 minutes
+            self.redis.setex('chat_message', 600, message)
         elif file_data:
             await self.channel_layer.group_send(
                 self.roomGroup, {
@@ -65,4 +70,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def joinRoom(self, event):
         message = event["message"]
-        await self.send(text_data=json.dumps( {"message": message}))
+        await self.send(text_data=json.dumps({"message": message}))
